@@ -7,21 +7,23 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <style>
-        #map { 
-            width: 100%; 
-            height: 600px; 
-            border: 1px solid #ddd;
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            text-align: center;
         }
-        .error {
-            color: red;
-            font-weight: bold;
+        #map { 
+            width: 80%; 
+            height: 600px; 
+            margin: auto;
+            border-radius: 10px;
+            border: 1px solid #ccc;
         }
     </style>
 </head>
 <body>
     <h2>Carte des maisons prospectées et des mandats</h2>
     <div id="map"></div>
-    <p id="error-message" class="error"></p>
 
     <script>
         var map = L.map('map').setView([43.3425, 5.4101], 12);
@@ -29,17 +31,12 @@
             attribution: '&copy; OpenStreetMap contributors'
         }).addTo(map);
 
-        var sheetURLProspection = 'https://docs.google.com/spreadsheets/d/1d0kMD-bicd83BqIB6HQzFeIh62jbIqRxHC8wwimVj9g/edit?gid=0#gid=0';
-        var sheetURLMandats = 'https://docs.google.com/spreadsheets/d/1d0kMD-bicd83BqIB6HQzFeIh62jbIqRxHC8wwimVj9g/edit?gid=565255152#gid=565255152';
+        var sheetURLProspection = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQaxFwdOqv8LQIyfvZyhH6Fow9EgwyZB5NaH6wHQed6J4TeW0CiJheGOv_kkfctHI3WukbMBGM9X5v6/pub?output=csv';
+        var sheetURLMandats = 'https://docs.google.com/spreadsheets/d/e/YOUR_MANDATS_SHEET_URL/pub?output=csv';
 
         function addPointsFromSheet(sheetURL, type) {
             fetch(sheetURL)
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error("Erreur de chargement des données !");
-                    }
-                    return response.text();
-                })
+                .then(response => response.text())
                 .then(csvText => {
                     let rows = csvText.split("\n").slice(1);
                     rows.forEach(row => {
@@ -54,37 +51,13 @@
 
                             if (type === "mandat") {
                                 let exclusivite = cols[8]?.trim();
-                                let prix_net_vendeur = cols[5]?.replace(/[^0-9]/g, "").trim();
-                                let honoraires = cols[6]?.replace(/[^0-9]/g, "").trim();
-                                let contact = cols[10]?.trim();
-
                                 if (exclusivite === "OUI") {
                                     iconUrl = "https://maps.google.com/mapfiles/ms/icons/yellow-dot.png"; // Mandat Exclusif
                                 } else {
                                     iconUrl = "https://maps.google.com/mapfiles/ms/icons/green-dot.png"; // Mandat Non Exclusif
                                 }
-                                popupContent += `
-                                    <b>📅 Date du mandat :</b> ${cols[3]} <br>
-                                    <b>👤 Agent :</b> ${cols[4]} <br>
-                                    <b>💰 Prix net vendeur :</b> ${prix_net_vendeur} € <br>
-                                    <b>💲 Honoraires :</b> ${honoraires} € <br>
-                                    <b>📝 Notes :</b> ${cols[7]} <br>
-                                    <b>⭐ Exclusivité :</b> ${exclusivite} <br>
-                                    <b>📞 Contact :</b> ${contact} 
-                                `;
                             } else {
-                                let prix_estime = cols[5]?.replace(/[^0-9]/g, "").trim();
-                                let prix_demande = cols[6]?.replace(/[^0-9]/g, "").trim();
-                                let contact = cols[9]?.trim();
-
-                                popupContent += `
-                                    <b>📅 Date de prospection :</b> ${cols[3]} <br>
-                                    <b>👤 Agent :</b> ${cols[4]} <br>
-                                    <b>💰 Prix estimé :</b> ${prix_estime} € <br>
-                                    <b>💲 Prix demandé :</b> ${prix_demande} € <br>
-                                    <b>📝 Notes :</b> ${cols[7]} <br>
-                                    <b>📞 Contact :</b> ${contact}
-                                `;
+                                iconUrl = "https://maps.google.com/mapfiles/ms/icons/red-dot.png"; // Prospection
                             }
 
                             let marker = L.marker([lat, lng], {
@@ -100,10 +73,7 @@
                         }
                     });
                 })
-                .catch(error => {
-                    document.getElementById("error-message").innerText = "❌ Impossible de charger les données.";
-                    console.error('Erreur:', error);
-                });
+                .catch(error => console.error('Erreur de chargement des données:', error));
         }
 
         addPointsFromSheet(sheetURLProspection, "prospection");
