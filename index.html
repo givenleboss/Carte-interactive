@@ -6,37 +6,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <style>
-        #form-container {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            background: white;
-            padding: 10px;
-            border-radius: 5px;
-            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
-        }
-    </style>
 </head>
 <body>
     <h2>Carte des maisons prospectées</h2>
     <div id="map" style="width: 100%; height: 600px;"></div>
     
-    <div id="form-container">
-        <h3>Ajouter un bien</h3>
-        <form id="property-form">
-            <label for="adresse">Adresse:</label> <input type="text" id="adresse" name="adresse" required><br>
-            <label for="latitude">Latitude:</label> <input type="text" id="latitude" name="latitude" required><br>
-            <label for="longitude">Longitude:</label> <input type="text" id="longitude" name="longitude" required><br>
-            <label for="date_prospection">Date Prospection:</label> <input type="date" id="date_prospection" name="date_prospection" required><br>
-            <label for="agent">Agent:</label> <input type="text" id="agent" name="agent" required><br>
-            <label for="prix_estime">Prix Estimé:</label> <input type="number" id="prix_estime" name="prix_estime" required><br>
-            <label for="prix_client">Prix Client:</label> <input type="number" id="prix_client" name="prix_client" required><br>
-            <label for="notes">Notes:</label> <input type="text" id="notes" name="notes"><br>
-            <button type="submit">Ajouter</button>
-        </form>
-    </div>
-
     <script>
         var map = L.map('map').setView([43.3425, 5.4101], 12);
 
@@ -80,30 +54,6 @@
                 });
             })
             .catch(error => console.error('Erreur de chargement des données:', error));
-
-        document.getElementById("property-form").addEventListener("submit", function(event) {
-            event.preventDefault();
-            
-            var formData = new FormData();
-            formData.append("adresse", document.getElementById("adresse").value);
-            formData.append("latitude", document.getElementById("latitude").value);
-            formData.append("longitude", document.getElementById("longitude").value);
-            formData.append("date_prospection", document.getElementById("date_prospection").value);
-            formData.append("agent", document.getElementById("agent").value);
-            formData.append("prix_estime", document.getElementById("prix_estime").value);
-            formData.append("prix_client", document.getElementById("prix_client").value);
-            formData.append("notes", document.getElementById("notes").value);
-
-            fetch('https://script.google.com/macros/s/AKfycbwIGkoIYK4TuqlI3wZdzo4z3qwB7lyTAu3z67SKl0P378XGq7Kxp9H2BihAjejghekI/exec', {
-                method: "POST",
-                body: formData
-            }).then(response => response.json())
-            .then(data => {
-                alert("Bien ajouté avec succès!");
-                location.reload();
-            })
-            .catch(error => console.error('Erreur lors de l\'ajout:', error));
-        });
     </script>
 </body>
 </html>
