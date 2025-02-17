@@ -51,8 +51,8 @@
                                 popupContent += `
                                     <b>📅 Date du mandat :</b> ${cols[3]} <br>
                                     <b>👤 Agent :</b> ${cols[4]} <br>
-                                    <b>💰 Prix net vendeur :</b> ${cols[5]} € <br>
-                                    <b>💲 Honoraires :</b> ${cols[6]} € <br>
+                                    <b>💰 Prix net vendeur :</b> ${cols[5]} <br>
+                                    <b>💲 Honoraires :</b> ${cols[6]} <br>
                                     <b>📝 Notes :</b> ${cols[7]} <br>
                                     <b>⭐ Exclusivité :</b> ${exclusivite} <br>
                                     <b>📞 Contact :</b> ${cols[10]} 
@@ -61,8 +61,8 @@
                                 popupContent += `
                                     <b>📅 Date de prospection :</b> ${cols[3]} <br>
                                     <b>👤 Agent :</b> ${cols[4]} <br>
-                                    <b>💰 Prix estimé :</b> ${cols[5]} € <br>
-                                    <b>💲 Prix demandé :</b> ${cols[6]} € <br>
+                                    <b>💰 Prix estimé :</b> ${cols[5]} <br>
+                                    <b>💲 Prix demandé :</b> ${cols[6]} <br>
                                     <b>📝 Notes :</b> ${cols[7]} <br>
                                     <b>📞 Contact :</b> ${cols[9]}
                                 `;
@@ -71,22 +71,4 @@
                             let marker = L.marker([lat, lng], {
                                 icon: L.icon({
                                     iconUrl: iconUrl,
-                                    iconSize: [32, 32],
-                                    iconAnchor: [16, 32],
-                                    popupAnchor: [0, -32]
-                                })
-                            }).addTo(map);
-
-                            marker.bindPopup(popupContent);
-                        }
-                    });
-                })
-                .catch(error => console.error('Erreur de chargement des données:', error));
-        }
-
-        addPointsFromSheet(sheetURLProspection, "prospection");
-        addPointsFromSheet(sheetURLMandats, "mandat");
-    </script>
-</body>
-</html>
-
+               
