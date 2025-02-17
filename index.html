@@ -8,9 +8,10 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Bebas Neue', sans-serif;
             margin: 20px;
             text-align: center;
+            background-color: #f4f4f4;
         }
         #map { 
             width: 80%; 
@@ -19,10 +20,16 @@
             border-radius: 10px;
             border: 1px solid #ccc;
         }
+        .logo {
+            width: 100px;
+            display: block;
+            margin: 10px auto;
+        }
     </style>
 </head>
 <body>
-    <h2>Carte des maisons prospectées et des mandats</h2>
+    <img src="https://cdn.discordapp.com/attachments/789651130166542377/1330956348040679495/image0.jpg" alt="Logo" class="logo">
+    <h2>Carte Interactive</h2>
     <div id="map"></div>
 
     <script>
@@ -31,8 +38,8 @@
             attribution: '&copy; OpenStreetMap contributors'
         }).addTo(map);
 
-        var sheetURLProspection = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQaxFwdOqv8LQIyfvZyhH6Fow9EgwyZB5NaH6wHQed6J4TeW0CiJheGOv_kkfctHI3WukbMBGM9X5v6/pub?output=csv';
-        var sheetURLMandats = 'https://docs.google.com/spreadsheets/d/e/YOUR_MANDATS_SHEET_URL/pub?output=csv';
+        var sheetURLProspection = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQaxFwdOqv8LQIyfvZyhH6Fow9EgwyZB5NaH6wHQed6J4TeW0CiJheGOv_kkfctHI3WukbMBGM9X5v6/pub?gid=0&single=true&output=csv';
+        var sheetURLMandats = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQaxFwdOqv8LQIyfvZyhH6Fow9EgwyZB5NaH6wHQed6J4TeW0CiJheGOv_kkfctHI3WukbMBGM9X5v6/pub?gid=565255152&single=true&output=csv';
 
         function addPointsFromSheet(sheetURL, type) {
             fetch(sheetURL)
@@ -47,7 +54,7 @@
 
                         if (!isNaN(lat) && !isNaN(lng)) {
                             let popupContent = `<b>📍 Adresse :</b> ${adresse} <br>`;
-                            let iconUrl = "https://maps.google.com/mapfiles/ms/icons/blue-dot.png"; // Prospection par défaut
+                            let iconUrl = "https://maps.google.com/mapfiles/ms/icons/red-dot.png"; // Prospection par défaut
 
                             if (type === "mandat") {
                                 let exclusivite = cols[8]?.trim();
@@ -56,8 +63,6 @@
                                 } else {
                                     iconUrl = "https://maps.google.com/mapfiles/ms/icons/green-dot.png"; // Mandat Non Exclusif
                                 }
-                            } else {
-                                iconUrl = "https://maps.google.com/mapfiles/ms/icons/red-dot.png"; // Prospection
                             }
 
                             let marker = L.marker([lat, lng], {
