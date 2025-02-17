@@ -19,7 +19,107 @@
         }).addTo(map);
 
         // 📌 URL de la feuille Google Sheets pour les maisons prospectées
+        var sheetURL_prospects = '<!DOCTYPE html>
+<html>
+<head>
+    <title>Carte Interactive - Agence Immobilière</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+</head>
+<body>
+    <h2>Carte des maisons prospectées et des mandats</h2>
+    <div id="map" style="width: 100%; height: 600px;"></div>
+
+    <script>
+        var map = L.map('map').setView([43.3425, 5.4101], 12);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(map);
+
+        // 📌 URL de la feuille Google Sheets pour les maisons prospectées
         var sheetURL_prospects = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQaxFwdOqv8LQIyfvZyhH6Fow9EgwyZB5NaH6wHQed6J4TeW0CiJheGOv_kkfctHI3WukbMBGM9X5v6/pub?output=csv';
+        
+        // 📌 URL de la feuille Google Sheets pour les mandats
+        var sheetURL_mandats = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQaxFwdOqv8LQIyfvZyhH6Fow9EgwyZB5NaH6wHQed6J4TeW0CiJheGOv_kkfctHI3WukbMBGM9X5v6/pubhtml?gid=565255152&single=true';
+
+        function addMarkers(sheetURL, type) {
+            fetch(sheetURL)
+                .then(response => response.text())
+                .then(csvText => {
+                    let rows = csvText.split("\n").slice(1);
+                    rows.forEach(row => {
+                        let cols = row.split(/,(?=(?:[^"']*['"][^"']*['"])*[^"']*$)/);
+                        if (cols.length < 3) return;
+
+                        let adresse = cols[0]?.trim();
+                        let lat = parseFloat(cols[1].trim());
+                        let lng = parseFloat(cols[2].trim());
+
+                        if (!isNaN(lat) && !isNaN(lng)) {
+                            let marker;
+                            let popupContent = `<b>📍 Adresse :</b> ${adresse} <br>`;
+
+                            if (type === "prospects") {
+                                let date_prospection = cols[3]?.trim();
+                                let agent = cols[4]?.trim();
+                                let prix_estime = cols[5]?.replace(/[^0-9]/g, "").trim();
+                                let prix_client = cols[6]?.replace(/[^0-9]/g, "").trim();
+                                let notes = cols[7]?.trim();
+
+                                popupContent += `
+                                    <b>📅 Date de prospection :</b> ${date_prospection} <br>
+                                    <b>👤 Agent :</b> ${agent} <br>
+                                    <b>💰 Prix estimé :</b> ${prix_estime} € <br>
+                                    <b>💲 Prix demandé :</b> ${prix_client} € <br>
+                                    <b>📝 Notes :</b> ${notes}
+                                `;
+
+                                marker = L.marker([lat, lng]).addTo(map);
+                            }
+
+                            if (type === "mandats") {
+                                let prix_net = cols[3]?.replace(/[^0-9]/g, "").trim();
+                                let honoraires = cols[4]?.replace(/[^0-9]/g, "").trim();
+                                let date_mandat = cols[5]?.trim();
+                                let exclusif = cols[6]?.trim().toUpperCase();
+
+                                popupContent += `
+                                    <b>💰 Prix net vendeur :</b> ${prix_net} € <br>
+                                    <b>💼 Honoraires :</b> ${honoraires} € <br>
+                                    <b>📅 Date de rentrée :</b> ${date_mandat} <br>
+                                    <b>📌 Exclusif :</b> ${exclusif}
+                                `;
+
+                                let iconColor = exclusif === "OUI" ? "gold" : "blue";
+                                let customIcon = L.icon({
+                                    iconUrl: `https://chart.googleapis.com/chart?chst=d_map_pin_letter&chld=%E2%80%A2|${iconColor}`,
+                                    iconSize: [21, 34],
+                                    iconAnchor: [10, 34],
+                                    popupAnchor: [1, -30]
+                                });
+
+                                marker = L.marker([lat, lng], { icon: customIcon }).addTo(map);
+                            }
+
+                            marker.bindPopup(popupContent);
+                        }
+                    });
+                })
+                .catch(error => console.error(`Erreur de chargement des données (${type}):`, error));
+        }
+
+        // 🏠 Ajouter les maisons prospectées
+        addMarkers(sheetURL_prospects, "prospects");
+
+        // 🏆 Ajouter les mandats
+        addMarkers(sheetURL_mandats, "mandats");
+    </script>
+</body>
+</html>
+';
         
         // 📌 URL de la feuille Google Sheets pour les mandats
         var sheetURL_mandats = 'TON_URL_CSV_MANDATS';
