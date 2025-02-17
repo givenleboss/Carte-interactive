@@ -1,14 +1,14 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Carte Interactive - Agence Immobilière</title>
+    <title>Carte Interactive</title>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Bebas Neue', sans-serif;
             margin: 20px;
             text-align: center;
             background-color: #f4f4f4;
@@ -52,7 +52,7 @@
 </head>
 <body>
     <img src="https://cdn.discordapp.com/attachments/789651130166542377/1330956348040679495/image0.jpg?ex=67b41e71&is=67b2ccf1&hm=4be7464de26b704053667adfdcaf3c545d03a191db3a5735899802324f86ddff&" alt="Logo" class="logo">
-    <h2>Carte des maisons prospectées et des mandats</h2>
+    <h2>Carte Interactive</h2>
     <div id="map"></div>
 
     <script>
@@ -60,6 +60,68 @@
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; OpenStreetMap contributors'
         }).addTo(map);
+
+        var sheetURLProspection = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQaxFwdOqv8LQIyfvZyhH6Fow9EgwyZB5NaH6wHQed6J4TeW0CiJheGOv_kkfctHI3WukbMBGM9X5v6/pub?output=csv';
+        var sheetURLMandats = 'https://docs.google.com/spreadsheets/d/e/YOUR_MANDATS_SHEET_URL/pub?output=csv';
+
+        function addPointsFromSheet(sheetURL, isMandat) {
+            fetch(sheetURL)
+                .then(response => response.text())
+                .then(csvText => {
+                    let rows = csvText.split("\n").slice(1);
+                    rows.forEach(row => {
+                        let cols = row.split(",");
+                        let adresse = cols[0]?.trim();
+                        let lat = parseFloat(cols[1]);
+                        let lng = parseFloat(cols[2]);
+
+                        let popupContent = `<b>📍 Adresse :</b> ${adresse} <br>`;
+
+                        let iconColor = "blue"; // Default to prospection
+                        if (isMandat) {
+                            let exclusivite = cols[8]?.trim();
+                            if (exclusivite === "OUI") {
+                                iconColor = "gold"; // Mandat exclusif
+                            } else {
+                                iconColor = "green"; // Mandat non exclusif
+                            }
+                            popupContent += `
+                                <b>📅 Date du mandat :</b> ${cols[3]} <br>
+                                <b>👤 Agent :</b> ${cols[4]} <br>
+                                <b>💰 Prix net vendeur :</b> ${cols[5]} € <br>
+                                <b>💲 Honoraires :</b> ${cols[6]} € <br>
+                                <b>📝 Notes :</b> ${cols[7]} <br>
+                                <b>⭐ Exclusivité :</b> ${exclusivite} <br>
+                                <b>📞 Contact :</b> ${cols[10]} 
+                            `;
+                        } else {
+                            popupContent += `
+                                <b>📅 Date de prospection :</b> ${cols[3]} <br>
+                                <b>👤 Agent :</b> ${cols[4]} <br>
+                                <b>💰 Prix estimé :</b> ${cols[5]} € <br>
+                                <b>💲 Prix demandé :</b> ${cols[6]} € <br>
+                                <b>📝 Notes :</b> ${cols[7]} <br>
+                                <b>📞 Contact :</b> ${cols[9]}
+                            `;
+                        }
+
+                        if (!isNaN(lat) && !isNaN(lng)) {
+                            let marker = L.marker([lat, lng], {
+                                icon: L.divIcon({
+                                    className: 'custom-marker',
+                                    html: `<div style='background-color: ${iconColor}; width: 12px; height: 12px; border-radius: 50%;'></div>`,
+                                    iconSize: [12, 12]
+                                })
+                            }).addTo(map);
+                            marker.bindPopup(popupContent);
+                        }
+                    });
+                })
+                .catch(error => console.error('Erreur de chargement des données:', error));
+        }
+
+        addPointsFromSheet(sheetURLProspection, false);
+        addPointsFromSheet(sheetURLMandats, true);
     </script>
 </body>
 </html>
