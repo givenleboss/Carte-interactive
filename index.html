@@ -1,25 +1,95 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Carte Interactive - Agence Immobilière</title>
+    <title>Carte Interactive</title>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <style>
-        #map { width: 100%; height: 600px; }
+        @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap');
+
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            background-color: #f4f4f4;
+            text-align: center;
+        }
+
+        #header {
+            background-color: #222;
+            color: white;
+            padding: 10px;
+            font-family: 'Bebas Neue', sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+        }
+
+        #header img {
+            height: 50px;
+            margin: 0 15px;
+        }
+
+        #map {
+            width: 90%;
+            height: 600px;
+            margin: auto;
+            border-radius: 10px;
+            border: 1px solid #ccc;
+        }
+
+        .legend {
+            background: white;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.2);
+            text-align: left;
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            font-size: 14px;
+        }
+
+        .legend div {
+            display: flex;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+
+        .legend span {
+            width: 15px;
+            height: 15px;
+            display: inline-block;
+            margin-right: 10px;
+            border-radius: 50%;
+        }
     </style>
 </head>
 <body>
-    <h2>Carte des maisons prospectées et des mandats</h2>
+
+    <div id="header">
+        <img src="URL_DU_LOGO" alt="Logo"> 
+        CARTE INTERACTIVE
+        <img src="URL_DU_LOGO" alt="Logo">
+    </div>
+
     <div id="map"></div>
+    <div class="legend">
+        <div><span style="background: blue;"></span> Maisons prospectées</div>
+        <div><span style="background: gold;"></span> Mandats exclusifs</div>
+        <div><span style="background: green;"></span> Mandats non exclusifs</div>
+    </div>
 
     <script>
         var map = L.map('map').setView([43.3425, 5.4101], 12);
-
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; OpenStreetMap contributors'
         }).addTo(map);
+
+        var prospectionLayer = L.layerGroup().addTo(map);
+        var mandatsLayer = L.layerGroup().addTo(map);
 
         var prospectionSheetURL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQaxFwdOqv8LQIyfvZyhH6Fow9EgwyZB5NaH6wHQed6J4TeW0CiJheGOv_kkfctHI3WukbMBGM9X5v6/pub?output=csv';
         var mandatsSheetURL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQaxFwdOqv8LQIyfvZyhH6Fow9EgwyZB5NaH6wHQed6J4TeW0CiJheGOv_kkfctHI3WukbMBGM9X5v6/pub?gid=565255152&output=csv';
@@ -30,76 +100,10 @@
                 .then(csvText => {
                     let rows = csvText.split("\n").slice(1);
                     rows.forEach(row => {
-                        let cols = row.split(/,(?=(?:[^"']*["'][^"']*["'])*[^"']*$)/);
+                        let cols = row.split(",");
                         if (cols.length < 8) return;
-
-                        let adresse = cols[0]?.trim();
                         let lat = parseFloat(cols[1].trim());
                         let lng = parseFloat(cols[2].trim());
-                        let agent = cols[4]?.trim();
-                        let prix_estime = cols[5]?.replace(/[^0-9]/g, "").trim();
-                        let prix_client = cols[6]?.replace(/[^0-9]/g, "").trim();
-                        let notes = cols[7]?.trim();
 
                         if (!isNaN(lat) && !isNaN(lng)) {
-                            let marker = L.marker([lat, lng], {icon: L.icon({
-                                iconUrl: 'https://maps.google.com/mapfiles/ms/icons/blue-dot.png',
-                                iconSize: [30, 30]
-                            })}).addTo(map);
-
-                            marker.bindPopup(`
-                                <b>📍 Adresse :</b> ${adresse} <br>
-                                <b>👤 Agent :</b> ${agent} <br>
-                                <b>💰 Prix estimé :</b> ${prix_estime} € <br>
-                                <b>💲 Prix demandé :</b> ${prix_client} € <br>
-                                <b>📝 Notes :</b> ${notes}
-                            `);
-                        }
-                    });
-                })
-                .catch(error => console.error('Erreur de chargement des données prospection:', error));
-        }
-
-        function loadMandatsData() {
-            fetch(mandatsSheetURL)
-                .then(response => response.text())
-                .then(csvText => {
-                    let rows = csvText.split("\n").slice(1);
-                    rows.forEach(row => {
-                        let cols = row.split(/,(?=(?:[^"']*["'][^"']*["'])*[^"']*$)/);
-                        if (cols.length < 9) return;
-
-                        let adresse = cols[0]?.trim();
-                        let lat = parseFloat(cols[1].trim());
-                        let lng = parseFloat(cols[2].trim());
-                        let agent = cols[4]?.trim();
-                        let prix_net = cols[5]?.replace(/[^0-9]/g, "").trim();
-                        let honoraires = cols[6]?.replace(/[^0-9]/g, "").trim();
-                        let exclusivite = cols[8]?.trim().toUpperCase();
-                        
-                        let iconUrl = exclusivite === "OUI" ? 'https://maps.google.com/mapfiles/ms/icons/yellow-dot.png' : 'https://maps.google.com/mapfiles/ms/icons/green-dot.png';
-
-                        if (!isNaN(lat) && !isNaN(lng)) {
-                            let marker = L.marker([lat, lng], {icon: L.icon({
-                                iconUrl: iconUrl,
-                                iconSize: [30, 30]
-                            })}).addTo(map);
-
-                            marker.bindPopup(`
-                                <b>📍 Adresse :</b> ${adresse} <br>
-                                <b>👤 Agent :</b> ${agent} <br>
-                                <b>💰 Prix net vendeur :</b> ${prix_net} € <br>
-                                <b>💵 Honoraires :</b> ${honoraires} € <br>
-                                <b>🔒 Exclusivité :</b> ${exclusivite}
-                            `);
-                        }
-                    });
-                })
-                .catch(error => console.error('Erreur de chargement des données mandats:', error));
-        }
-
-        loadProspectionData();
-        loadMandatsData();
-    </script>
-</body>
-</html>
+                           
