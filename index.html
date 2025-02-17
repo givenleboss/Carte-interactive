@@ -47,17 +47,20 @@
                 .then(csvText => {
                     let rows = csvText.split("\n").slice(1);
                     rows.forEach(row => {
-                        let cols = row.split(",");
-                        let adresse = cols[0]?.trim();
+                        let cols = row.split(/,|;/); // Essaye "," ou ";"
+                        
+                        if (cols.length < 3) return; // Évite les lignes incomplètes
+
+                        let adresse = cols[0]?.trim() || "Adresse inconnue";
                         let lat = parseFloat(cols[1]);
                         let lng = parseFloat(cols[2]);
 
                         if (!isNaN(lat) && !isNaN(lng)) {
                             let popupContent = `<b>📍 Adresse :</b> ${adresse} <br>`;
-                            let iconUrl = "https://maps.google.com/mapfiles/ms/icons/red-dot.png"; // Prospection par défaut
+                            let iconUrl = "https://maps.google.com/mapfiles/ms/icons/red-dot.png"; // Par défaut (prospection)
 
                             if (type === "mandat") {
-                                let exclusivite = cols[8]?.trim();
+                                let exclusivite = cols[8]?.trim().toUpperCase() || "NON";
                                 if (exclusivite === "OUI") {
                                     iconUrl = "https://maps.google.com/mapfiles/ms/icons/yellow-dot.png"; // Mandat Exclusif
                                 } else {
@@ -75,6 +78,8 @@
                             }).addTo(map);
 
                             marker.bindPopup(popupContent);
+                        } else {
+                            console.error("Coordonnées invalides:", cols);
                         }
                     });
                 })
