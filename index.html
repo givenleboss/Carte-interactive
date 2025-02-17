@@ -1,45 +1,30 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Carte Interactive</title>
+    <title>Carte Interactive - Agence Immobilière</title>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap');
-
         body {
             font-family: Arial, sans-serif;
-            margin: 0;
-            background-color: #f4f4f4;
+            margin: 20px;
             text-align: center;
+            background-color: #f4f4f4;
         }
-
-        #header {
-            background-color: #222;
-            color: white;
-            padding: 10px;
-            font-family: 'Bebas Neue', sans-serif;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 30px;
-        }
-
-        #header img {
-            height: 50px;
-            margin: 0 15px;
-        }
-
-        #map {
-            width: 90%;
-            height: 600px;
+        #map { 
+            width: 80%; 
+            height: 600px; 
             margin: auto;
             border-radius: 10px;
             border: 1px solid #ccc;
         }
-
+        .logo {
+            width: 100px;
+            display: block;
+            margin: 10px auto;
+        }
         .legend {
             background: white;
             padding: 10px;
@@ -51,13 +36,11 @@
             left: 20px;
             font-size: 14px;
         }
-
         .legend div {
             display: flex;
             align-items: center;
             margin-bottom: 5px;
         }
-
         .legend span {
             width: 15px;
             height: 15px;
@@ -68,42 +51,15 @@
     </style>
 </head>
 <body>
-
-    <div id="header">
-        <img src="URL_DU_LOGO" alt="Logo"> 
-        CARTE INTERACTIVE
-        <img src="URL_DU_LOGO" alt="Logo">
-    </div>
-
+    <img src="https://cdn.discordapp.com/attachments/789651130166542377/1330956348040679495/image0.jpg?ex=67b41e71&is=67b2ccf1&hm=4be7464de26b704053667adfdcaf3c545d03a191db3a5735899802324f86ddff&" alt="Logo" class="logo">
+    <h2>Carte des maisons prospectées et des mandats</h2>
     <div id="map"></div>
-    <div class="legend">
-        <div><span style="background: blue;"></span> Maisons prospectées</div>
-        <div><span style="background: gold;"></span> Mandats exclusifs</div>
-        <div><span style="background: green;"></span> Mandats non exclusifs</div>
-    </div>
 
     <script>
         var map = L.map('map').setView([43.3425, 5.4101], 12);
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; OpenStreetMap contributors'
         }).addTo(map);
-
-        var prospectionLayer = L.layerGroup().addTo(map);
-        var mandatsLayer = L.layerGroup().addTo(map);
-
-        var prospectionSheetURL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQaxFwdOqv8LQIyfvZyhH6Fow9EgwyZB5NaH6wHQed6J4TeW0CiJheGOv_kkfctHI3WukbMBGM9X5v6/pub?output=csv';
-        var mandatsSheetURL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQaxFwdOqv8LQIyfvZyhH6Fow9EgwyZB5NaH6wHQed6J4TeW0CiJheGOv_kkfctHI3WukbMBGM9X5v6/pub?gid=565255152&output=csv';
-
-        function loadProspectionData() {
-            fetch(prospectionSheetURL)
-                .then(response => response.text())
-                .then(csvText => {
-                    let rows = csvText.split("\n").slice(1);
-                    rows.forEach(row => {
-                        let cols = row.split(",");
-                        if (cols.length < 8) return;
-                        let lat = parseFloat(cols[1].trim());
-                        let lng = parseFloat(cols[2].trim());
-
-                        if (!isNaN(lat) && !isNaN(lng)) {
-                           
+    </script>
+</body>
+</html>
