@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Carte Interactive - Agence Immobilière</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+</head>
+<body>
+    <h2>Carte des maisons prospectées</h2>
+    <div id="map" style="width: 100%; height: 600px;"></div>
+
+    <script>
+        var map = L.map('map').setView([48.8566, 2.3522], 12); // Vue par défaut sur Paris
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(map);
+
+        //https://docs.google.com/spreadsheets/d/e/2PACX-1vQaxFwdOqv8LQIyfvZyhH6Fow9EgwyZB5NaH6wHQed6J4TeW0CiJheGOv_kkfctHI3WukbMBGM9X5v6/pub?output=csv
+        var sheetURL = 'https://docs.google.com/spreadsheets/d/TON_ID/gviz/tq?tqx=out:csv';
+
+        fetch(sheetURL)
+            .then(response => response.text())
+            .then(csvText => {
+                let rows = csvText.split("\n").slice(1);
+                rows.forEach(row => {
+                    let cols = row.split(",");
+                    let adresse = cols[0]?.trim();
+                    let lat = parseFloat(cols[1]);
+                    let lng = parseFloat(cols[2]);
+                    let date_prospection = cols[3]?.trim();
+                    let agent = cols[4]?.trim();
+                    let prix_estime = cols[5]?.trim();
+                    let prix_client = cols[6]?.trim();
+                    let notes = cols[7]?.trim();
+
+                    // Vérification si les coordonnées GPS sont valides
+                    if (!isNaN(lat) && !isNaN(lng)) {
+                        let marker = L.marker([lat, lng]).addTo(map);
+
+                        let popupContent = `
+                            <div style="font-size: 14px;">
+                                <b>📍 Adresse :</b> ${adresse} <br>
+                                <b>📅 Date de prospection :</b> ${date_prospection} <br>
+                                <b>👤 Agent :</b> ${agent} <br>
+                                <b>💰 Prix estimé :</b> ${prix_estime} € <br>
+                                <b>💲 Prix demandé :</b> ${prix_client} € <br>
+                                <b>📝 Notes :</b> ${notes}
+                            </div>
+                        `;
+
+                        marker.bindPopup(popupContent);
+                    } else {
+                        console.log(`Coordonnées invalides pour ${adresse}`);
+                    }
+                });
+            })
+            .catch(error => console.error('Erreur de chargement des données:', error));
+    </script>
+</body>
+</html>
