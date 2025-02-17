@@ -25,14 +25,14 @@
     <div id="form-container">
         <h3>Ajouter un bien</h3>
         <form id="property-form">
-            <label>Adresse:</label> <input type="text" id="adresse" required><br>
-            <label>Latitude:</label> <input type="text" id="latitude" required><br>
-            <label>Longitude:</label> <input type="text" id="longitude" required><br>
-            <label>Date Prospection:</label> <input type="date" id="date_prospection" required><br>
-            <label>Agent:</label> <input type="text" id="agent" required><br>
-            <label>Prix Estimé:</label> <input type="number" id="prix_estime" required><br>
-            <label>Prix Client:</label> <input type="number" id="prix_client" required><br>
-            <label>Notes:</label> <input type="text" id="notes"><br>
+            <label for="adresse">Adresse:</label> <input type="text" id="adresse" name="adresse" required><br>
+            <label for="latitude">Latitude:</label> <input type="text" id="latitude" name="latitude" required><br>
+            <label for="longitude">Longitude:</label> <input type="text" id="longitude" name="longitude" required><br>
+            <label for="date_prospection">Date Prospection:</label> <input type="date" id="date_prospection" name="date_prospection" required><br>
+            <label for="agent">Agent:</label> <input type="text" id="agent" name="agent" required><br>
+            <label for="prix_estime">Prix Estimé:</label> <input type="number" id="prix_estime" name="prix_estime" required><br>
+            <label for="prix_client">Prix Client:</label> <input type="number" id="prix_client" name="prix_client" required><br>
+            <label for="notes">Notes:</label> <input type="text" id="notes" name="notes"><br>
             <button type="submit">Ajouter</button>
         </form>
     </div>
@@ -102,7 +102,7 @@
                 alert("Bien ajouté avec succès!");
                 location.reload();
             })
-            .catch(error => console.error('Erreur lors de l'ajout:', error));
+            .catch(error => console.error('Erreur lors de l\'ajout:', error));
         });
     </script>
 </body>
