@@ -47,20 +47,31 @@
                 .then(csvText => {
                     let rows = csvText.split("\n").slice(1);
                     rows.forEach(row => {
-                        let cols = row.split(/,|;/); // Essaye "," ou ";"
-                        
-                        if (cols.length < 3) return; // Évite les lignes incomplètes
-
-                        let adresse = cols[0]?.trim() || "Adresse inconnue";
+                        let cols = row.split(",");
+                        let adresse = cols[0]?.trim();
                         let lat = parseFloat(cols[1]);
                         let lng = parseFloat(cols[2]);
+                        let dateMandat = cols[3]?.trim();
+                        let agent = cols[4]?.trim();
+                        let prixVendeur = cols[5]?.trim();
+                        let honoraires = cols[6]?.trim();
+                        let notes = cols[7]?.trim();
+                        let exclusivite = cols[8]?.trim();
+                        let nom = cols[9]?.trim();
+                        let contact = cols[10]?.trim();
 
                         if (!isNaN(lat) && !isNaN(lng)) {
-                            let popupContent = `<b>📍 Adresse :</b> ${adresse} <br>`;
-                            let iconUrl = "https://maps.google.com/mapfiles/ms/icons/red-dot.png"; // Par défaut (prospection)
+                            let popupContent = `<b>📍 Adresse :</b> ${adresse} <br>
+                                                <b>📆 Date du mandat :</b> ${dateMandat} <br>
+                                                <b>👤 Agent :</b> ${agent} <br>
+                                                <b>💰 Prix net vendeur :</b> ${prixVendeur} €<br>
+                                                <b>📉 Honoraires :</b> ${honoraires} €<br>
+                                                <b>📝 Notes :</b> ${notes} <br>
+                                                <b>🏠 Exclusivité :</b> ${exclusivite} <br>
+                                                <b>📞 Contact :</b> ${contact} <br>`;
 
+                            let iconUrl = "https://maps.google.com/mapfiles/ms/icons/red-dot.png"; // Prospection par défaut
                             if (type === "mandat") {
-                                let exclusivite = cols[8]?.trim().toUpperCase() || "NON";
                                 if (exclusivite === "OUI") {
                                     iconUrl = "https://maps.google.com/mapfiles/ms/icons/yellow-dot.png"; // Mandat Exclusif
                                 } else {
@@ -78,8 +89,6 @@
                             }).addTo(map);
 
                             marker.bindPopup(popupContent);
-                        } else {
-                            console.error("Coordonnées invalides:", cols);
                         }
                     });
                 })
@@ -87,6 +96,11 @@
         }
 
         addPointsFromSheet(sheetURLProspection, "prospection");
+        addPointsFromSheet(sheetURLMandats, "mandat");
+    </script>
+</body>
+</html>
+
         addPointsFromSheet(sheetURLMandats, "mandat");
     </script>
 </body>
