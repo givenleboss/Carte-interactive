@@ -8,9 +8,9 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 </head>
 <body>
-    <h2>Carte des maisons prospectées</h2>
+    <h2>Carte des maisons prospectées et des mandats</h2>
     <div id="map" style="width: 100%; height: 600px;"></div>
-    
+
     <script>
         var map = L.map('map').setView([43.3425, 5.4101], 12);
 
@@ -18,42 +18,94 @@
             attribution: '&copy; OpenStreetMap contributors'
         }).addTo(map);
 
-        var sheetURL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQaxFwdOqv8LQIyfvZyhH6Fow9EgwyZB5NaH6wHQed6J4TeW0CiJheGOv_kkfctHI3WukbMBGM9X5v6/pub?output=csv';
+        // 📌 URL des feuilles Google Sheets
+        var sheetURL_prospects = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQaxFwdOqv8LQIyfvZyhH6Fow9EgwyZB5NaH6wHQed6J4TeW0CiJheGOv_kkfctHI3WukbMBGM9X5v6/pub?output=csv';
+        var sheetURL_mandats = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQaxFwdOqv8LQIyfvZyhH6Fow9EgwyZB5NaH6wHQed6J4TeW0CiJheGOv_kkfctHI3WukbMBGM9X5v6/pub?output=csv';
 
-        fetch(sheetURL)
-            .then(response => response.text())
-            .then(csvText => {
-                let rows = csvText.split("\n").slice(1);
-                rows.forEach(row => {
-                    let cols = row.split(/,(?=(?:[^"']*['"][^"']*['"])*[^"']*$)/);
-                    if (cols.length < 8) return;
+        function addMarkers(sheetURL, type) {
+            fetch(sheetURL)
+                .then(response => response.text())
+                .then(csvText => {
+                    let rows = csvText.split("\n").slice(1);
+                    rows.forEach(row => {
+                        let cols = row.split(/,(?=(?:[^"']*['"][^"']*['"])*[^"']*$)/);
+                        if (cols.length < 10) return;
 
-                    let adresse = cols[0]?.trim();
-                    let lat = parseFloat(cols[1].trim());
-                    let lng = parseFloat(cols[2].trim());
-                    let date_prospection = cols[3]?.trim();
-                    let agent = cols[4]?.trim();
-                    let prix_estime = cols[5]?.replace(/[^0-9]/g, "").trim();
-                    let prix_client = cols[6]?.replace(/[^0-9]/g, "").trim();
-                    let notes = cols[7]?.trim();
+                        let adresse = cols[0]?.trim();
+                        let lat = parseFloat(cols[1].trim());
+                        let lng = parseFloat(cols[2].trim());
 
-                    if (!isNaN(lat) && !isNaN(lng)) {
-                        let marker = L.marker([lat, lng]).addTo(map);
-                        let popupContent = `
-                            <div style="font-size: 14px;">
-                                <b>📍 Adresse :</b> ${adresse} <br>
-                                <b>📅 Date de prospection :</b> ${date_prospection} <br>
-                                <b>👤 Agent :</b> ${agent} <br>
-                                <b>💰 Prix estimé :</b> ${prix_estime} € <br>
-                                <b>💲 Prix demandé :</b> ${prix_client} € <br>
-                                <b>📝 Notes :</b> ${notes}
-                            </div>
-                        `;
-                        marker.bindPopup(popupContent);
-                    }
-                });
-            })
-            .catch(error => console.error('Erreur de chargement des données:', error));
+                        if (!isNaN(lat) && !isNaN(lng)) {
+                            let marker;
+                            let popupContent = `<b>📍 Adresse :</b> ${adresse} <br>`;
+
+                            if (type === "prospects") {
+                                let date_prospection = cols[3]?.trim();
+                                let agent = cols[4]?.trim();
+                                let prix_estime = cols[5]?.replace(/[^0-9]/g, "").trim();
+                                let prix_client = cols[6]?.replace(/[^0-9]/g, "").trim();
+                                let notes = cols[7]?.trim();
+                                let nom = cols[8]?.trim();
+                                let contact = cols[9]?.trim();
+
+                                popupContent += `
+                                    <b>📅 Date de prospection :</b> ${date_prospection} <br>
+                                    <b>👤 Agent :</b> ${agent} <br>
+                                    <b>💰 Prix estimé :</b> ${prix_estime} € <br>
+                                    <b>💲 Prix demandé :</b> ${prix_client} € <br>
+                                    <b>📝 Notes :</b> ${notes} <br>
+                                    <b>📞 Nom :</b> ${nom} <br>
+                                    <b>☎️ Contact :</b> ${contact}
+                                `;
+
+                                marker = L.marker([lat, lng]).addTo(map);
+                            }
+
+                            if (type === "mandats") {
+                                let date_mandat = cols[3]?.trim();
+                                let agent = cols[4]?.trim();
+                                let prix_net = cols[5]?.replace(/[^0-9]/g, "").trim();
+                                let honoraires = cols[6]?.replace(/[^0-9]/g, "").trim();
+                                let notes = cols[7]?.trim();
+                                let exclusif = cols[8]?.trim().toUpperCase();
+                                let nom = cols[9]?.trim();
+                                let contact = cols[10]?.trim();
+
+                                popupContent += `
+                                    <b>📅 Date du mandat :</b> ${date_mandat} <br>
+                                    <b>👤 Agent :</b> ${agent} <br>
+                                    <b>💰 Prix net vendeur :</b> ${prix_net} € <br>
+                                    <b>💼 Honoraires :</b> ${honoraires} € <br>
+                                    <b>📝 Notes :</b> ${notes} <br>
+                                    <b>📌 Exclusif :</b> ${exclusif} <br>
+                                    <b>📞 Nom :</b> ${nom} <br>
+                                    <b>☎️ Contact :</b> ${contact}
+                                `;
+
+                                let iconColor = exclusif === "OUI" ? "FFD700" : "00FF00"; // Doré pour exclusif, vert pour non-exclusif
+                                let customIcon = L.icon({
+                                    iconUrl: `https://chart.googleapis.com/chart?chst=d_map_pin_letter&chld=%E2%80%A2|${iconColor}`,
+                                    iconSize: [21, 34],
+                                    iconAnchor: [10, 34],
+                                    popupAnchor: [1, -30]
+                                });
+
+                                marker = L.marker([lat, lng], { icon: customIcon }).addTo(map);
+                            }
+
+                            marker.bindPopup(popupContent);
+                        }
+                    });
+                })
+                .catch(error => console.error(`Erreur de chargement des données (${type}):`, error));
+        }
+
+        // 🏠 Ajouter les maisons prospectées
+        addMarkers(sheetURL_prospects, "prospects");
+
+        // 🏆 Ajouter les mandats
+        addMarkers(sheetURL_mandats, "mandats");
     </script>
 </body>
 </html>
+
