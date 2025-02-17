@@ -94,7 +94,7 @@
             formData.append("prix_client", document.getElementById("prix_client").value);
             formData.append("notes", document.getElementById("notes").value);
 
-            fetch('https://script.google.com/macros/s/AKfycbxadRnTUfXwfCNKUqCmrbkpXBD3nk2xIaCp1hU4VqgEvHxzDXSYYw9HNnEZ4NTmLx7gxw/exec', {
+            fetch('https://script.google.com/macros/s/AKfycbyiEsT-JyCu-pbkOpoyODpPgksUjaYmIkmJkXmAqDurEecoJqOBqHTL7cXA2KosyoIIDQ/exec', {
                 method: "POST",
                 body: formData
             }).then(response => response.json())
